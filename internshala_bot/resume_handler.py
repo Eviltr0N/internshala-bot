@@ -12,7 +12,7 @@ config_file = 'resume.ini'
 
 
 if not os.path.exists(config_file):
-    with open(config_file, 'w') as file:
+    with open(config_file, 'w', encoding='latin-1') as file:
         file.write('\n#Enter your Skills Here \n\n')
         file.write('SKILLS = """\n\n\nPython, sql, PowerBi\n Azure, AWS, Google Cloud, Colorful Rain Cloud\nTime Management, Excellent Communication Skills etc.\n\n\n"""')
 
@@ -26,7 +26,7 @@ if not os.path.exists(config_file):
         exit()
 
 
-with open(config_file, 'r') as file:
+with open(config_file, 'r', encoding='latin-1', errors='ignore') as file:
     config_data = file.read().replace(";", "#")
 
 try:
