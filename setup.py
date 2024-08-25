@@ -26,6 +26,7 @@ setup(
         "requests",
         "requests-html",
         "pandas",
+        "lxml_html_clean",
 
     ],
     classifiers=[
