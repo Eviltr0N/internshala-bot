@@ -1,4 +1,4 @@
-# Internshala Bot
+# [Internshala Bot](https://pypi.org/project/internshala-bot/)
 
 ## Background
 
@@ -126,3 +126,7 @@ Example:
         This will include internships that have "Python" and "SQL" in their titles, in addition to "Data Science" internships.
 
         You can mention multiple filters separated by spaces.
+
+## PYPI Project 
+
+[https://pypi.org/project/internshala-bot/](https://pypi.org/project/internshala-bot/)
