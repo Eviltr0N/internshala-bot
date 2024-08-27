@@ -4,7 +4,6 @@ Github - https://github.com/Eviltr0N/internshala-bot
 Written by - Mayank Lodhi
 """
 
-
 from undetected_playwright.sync_api import sync_playwright
 import json
 import os
@@ -26,10 +25,26 @@ class chat:
     def get_cover_letter(self, profile, company, about, skills):
         prompt = cover_letter_prompt_format(profile, company, about, skills)
         if self.cover_letter_url is None:
-            self.page.goto(self.main_page_url , timeout=60000, wait_until='networkidle')
+            try:
+                self.page.goto(self.main_page_url , timeout=30000, wait_until='networkidle')
+            except TimeoutError as e:
+                print(f"[red]TimeOut while loading {self.main_page_url} webpage... Trying Again[/]")
+                try:
+                    self.page.goto(self.main_page_url , timeout=30000, wait_until='networkidle')
+                except TimeoutError as e:
+                    print('\n[bold red]Timeout Occured at get_cover_letter while loading {self.main_page_url}, Please check your network and Try again.\n[/]')
+                    exit()
         else:
-            self.page.goto(self.cover_letter_url , timeout=60000, wait_until='networkidle')
-        time.sleep(2)
+            try:
+                self.page.goto(self.cover_letter_url , timeout=30000, wait_until='networkidle')
+            except TimeoutError as e:
+                print(f"[red]TimeOut while loading {self.cover_letter_url} webpage... Trying Again[/]")
+                try:
+                    self.page.goto(self.cover_letter_url , timeout=30000, wait_until='networkidle')
+                except TimeoutError as e:
+                    print('\n[bold red]Timeout Occured at get_cover_letter while loading {self.cover_letter_url}, Please check your network and Try again.\n[/]')
+                    exit()
+        self.page.wait_for_selector('textarea#prompt-textarea', state='visible')
         self.page.locator('textarea#prompt-textarea').fill(prompt)
         time.sleep(2)
         self.page.locator('[data-testid="send-button"]').click()
@@ -56,11 +71,29 @@ class chat:
 
     def get_assignment_answer(self, profile, company, about, skills, question):
         prompt = assignment_prompt_format(profile, company, about, skills, question)
+
         if self.assignment_url is None:
-            self.page.goto(self.main_page_url , timeout=60000, wait_until='networkidle')
+            try:
+                self.page.goto(self.main_page_url , timeout=30000, wait_until='networkidle')
+            except TimeoutError as e:
+                print(f"[red]TimeOut while loading {self.main_page_url} webpage... Trying Again[/]")
+                try:
+                    self.page.goto(self.main_page_url , timeout=30000, wait_until='networkidle')
+                except TimeoutError as e:
+                    print('\n[bold red]Timeout Occured at get_assignment_answer while loading {self.main_page_url}, Please check your network and Try again.\n[/]')
+                    exit()
         else:
-            self.page.goto(self.assignment_url , timeout=60000, wait_until='networkidle')
-        time.sleep(2)
+            try:
+                self.page.goto(self.assignment_url , timeout=30000, wait_until='networkidle')
+            except TimeoutError as e:
+                print(f"[red]TimeOut while loading {self.assignment_url} webpage... Trying Again[/]")
+                try:
+                    self.page.goto(self.assignment_url , timeout=30000, wait_until='networkidle')
+                except TimeoutError as e:
+                    print('\n[bold red]Timeout Occured at get_assignment_answer while loading {self.assignment_url}, Please check your network and Try again.\n[/]')
+                    exit()
+
+        self.page.wait_for_selector('textarea#prompt-textarea', state='visible')
         self.page.locator('textarea#prompt-textarea').fill(prompt)
         time.sleep(1)
         self.page.locator('[data-testid="send-button"]').click()
@@ -77,10 +110,27 @@ class chat:
     def assmnt_is_valid(self, profile, question):
         prompt = assignment_validation_prompt(profile, question)
         if self.gpt_check_asg_url is None:
-            self.page.goto(self.main_page_url , timeout=60000, wait_until='networkidle')
+            try:
+                self.page.goto(self.main_page_url , timeout=30000, wait_until='networkidle')
+            except TimeoutError as e:
+                print(f"[red]TimeOut while loading {self.main_page_url} webpage... Trying Again[/]")
+                try:
+                    self.page.goto(self.main_page_url , timeout=30000, wait_until='networkidle')
+                except TimeoutError as e:
+                    print('\n[bold red]Timeout Occured at assmnt_is_valid while loading {self.main_page_url}, Please check your network and Try again.\n[/]')
+                    exit()
         else:
-            self.page.goto(self.gpt_check_asg_url , timeout=60000, wait_until='networkidle')
-        time.sleep(2)
+            try:
+                self.page.goto(self.gpt_check_asg_url , timeout=30000, wait_until='networkidle')
+            except TimeoutError as e:
+                print(f"[red]TimeOut while loading {self.gpt_check_asg_url} webpage... Trying Again[/]")
+                try:
+                    self.page.goto(self.gpt_check_asg_url , timeout=30000, wait_until='networkidle')
+                except TimeoutError as e:
+                    print('\n[bold red]Timeout Occured at assmnt_is_valid while loading {self.gpt_check_asg_url}, Please check your network and Try again.\n[/]')
+                    exit()
+
+        self.page.wait_for_selector('textarea#prompt-textarea', state='visible')
         self.page.locator('textarea#prompt-textarea').fill(prompt)
         time.sleep(1)
         self.page.locator('[data-testid="send-button"]').click()
