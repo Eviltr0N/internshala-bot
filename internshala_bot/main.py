@@ -83,7 +83,8 @@ class internshala:
         page.goto('https://chat.openai.com' , timeout=60000, wait_until='networkidle')
         time.sleep(1)
         try:
-            page.locator('[data-testid="login-button"]').click()
+            with page.expect_navigation():
+                page.locator('[data-testid="login-button"]').click()
         except:
             print("[bold yellow]Click on Login button and Login using Your Emali and Password...\n[/]")
         start_time = time.time()
@@ -126,6 +127,7 @@ class internshala:
         else:
             apply_button = self.page.get_by_role("button", name="Apply now")
             apply_button.click()
+            self.page.wait_for_selector('//*[@id="cover_letter_holder"]/div[1]', state='visible')
             return False
         self.page.context.storage_state(path=self.intern_state_conf)
     
@@ -162,9 +164,11 @@ class internshala:
         submit_loc = self.page.locator('//*[@id="submit"]')
         success.add(self.profile, self.company, self.skills, "Applied", self.intshp_url)
         submit_loc.click()
-        time.sleep(1)
+        self.page.wait_for_selector('#similar_job_modal > div > div > div.modal-body > div > div > div > div > div.text-heading', state='visible')
         self.page.context.storage_state(path=self.intern_state_conf)
+        print('[bold green]Successfully Applied at: [/]', self.page.url)
         self.page.close()
+        
  
     def update_resume_skills(self):
         cookies = self.page.context.cookies()
@@ -331,7 +335,8 @@ def main():
                 intern.fill_app_form(GPT, success,failed, validate_assignment_question)
             else: 
                 print("[bold yellow]Already Applied. Skipping...[/]")
-        
+
+        print('\n[bold green]Execution Success... Please check Generated Reports for more info.[/]\n')
         success.generate()
         failed.generate()
 
