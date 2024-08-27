@@ -80,7 +80,15 @@ class internshala:
         
     def login_chat_gpt(self):
         page = self.browser.new_page()
-        page.goto('https://chat.openai.com' , timeout=60000, wait_until='networkidle')
+        try:
+            page.goto('https://chat.openai.com' , timeout=30000, wait_until='networkidle')
+        except TimeoutError as e:
+            print("[red]TimeOut while loading ChatGPT webpage... Trying Again[/]")
+            try:
+                page.goto('https://chat.openai.com' , timeout=30000, wait_until='networkidle')
+            except TimeoutError as e:
+                print('\n[bold red]Timeout Occured while loading https://chatgpt.com, Please check your network and Try again.\n[/]')
+                exit()
         time.sleep(1)
         try:
             with page.expect_navigation():
