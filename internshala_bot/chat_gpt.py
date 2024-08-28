@@ -4,7 +4,7 @@ Github - https://github.com/Eviltr0N/internshala-bot
 Written by - Mayank Lodhi
 """
 
-from undetected_playwright.sync_api import sync_playwright
+from undetected_playwright.sync_api import sync_playwright, TimeoutError
 import json
 import os
 import time
