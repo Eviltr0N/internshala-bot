@@ -1,5 +1,7 @@
 # [Internshala Bot](https://pypi.org/project/internshala-bot/)
 
+### Full Video Tutorial on [Youtube](https://youtu.be/l0Pgz9-QB_E) - <https://youtu.be/l0Pgz9-QB_E>
+
 ## Background
 
 I was recently looking for internships on Internshala. At the beginning, I applied to 2-3 internships. Then I saw on Internshala that they say you have to apply to at least 15 internships to get a response from 1 employer. I was like, WTF! Applying for one internship takes me around 5 minutes—from finding the right one to writing a cover letter using ChatGPT, while mentioning my skills, projects, and other things in the cover letter. To make things worse, if there's any assignment in the application process, it takes around 7 to 10 minutes to apply to just one internship. So, I thought, what if I automate everything—from finding internships to updating my resume, writing the perfect cover letter, and even solving assignments—so I could relax and endlessly scroll through Instagram (which shows me depressing content and whose algorithm is getting way too personal day by day).
@@ -127,6 +129,13 @@ Example:
 
         You can mention multiple filters separated by spaces.
 
+## Credits
+* [undetected-playwright-patch](https://pypi.org/project/undetected-playwright-patch/)
+
+
 ## PYPI Project 
 
 [https://pypi.org/project/internshala-bot/](https://pypi.org/project/internshala-bot/)
+
+## To Do
+* GUI using Tkinter
