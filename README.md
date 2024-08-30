@@ -79,8 +79,10 @@ chmod +x <The path your terminal tells you for node>
 1. Run the module using the terminal and paste the copied URL from the previous step, such as:    
     `python3 -m internshala_bot copied_internship_url`    
 
-    Example:      
-    `python3 -m internshala_bot https://internshala.com/internship/detail/work-from-home-part-time-teaching-assistant-data-science-internship-at-internshala1723621737`
+    Example:  
+```    
+    python3 -m internshala_bot https://internshala.com/internship/detail/work-from-home-part-time-teaching-assistant-data-science-internship-at-internshala1723621737
+```
 
 2. Now follow the instructions printed in the terminal.
     - It will ask you to sign in to your Internshala and ChatGPT accounts.
@@ -99,8 +101,10 @@ chmod +x <The path your terminal tells you for node>
 
     In this way, you can add multiple URLs separated by spaces.
 
-Example:    
-    `python3 -m internshala_bot https://internshala.com/internship/detail/work-from-home-part-time-teaching-assistant-data-science-internship-at-internshala1723621737 https://internshala.com/internship/detail/acquisition-ninja-internship-in-multiple-locations-at-zomato1721285327 https://internshala.com/internship/detail/work-from-home-part-time-teaching-assistant-data-science-internship-at-internshala1723621737`
+Example:
+```    
+    python3 -m internshala_bot https://internshala.com/internship/detail/work-from-home-part-time-teaching-assistant-data-science-internship-at-internshala1723621737 https://internshala.com/internship/detail/acquisition-ninja-internship-in-multiple-locations-at-zomato1721285327 https://internshala.com/internship/detail/work-from-home-part-time-teaching-assistant-data-science-internship-at-internshala1723621737
+```
 
 ##### After running successfully, it will generate reports in the `reports/` folder in the current directory. There are two types of reports: 
     - Application Success Report
