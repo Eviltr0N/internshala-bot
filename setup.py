@@ -6,7 +6,7 @@ with open('README.md') as f:
 
 setup(
     name="internshala-bot",
-    version="0.0.4",
+    version="0.0.5",
     author="Mayank Lodhi",
     author_email="",
     description="Package to automate internship application process on Internshala using ChatGPT.",
@@ -17,6 +17,7 @@ setup(
     project_urls={
         'Bug Reports': 'https://github.com/Eviltr0N/internshala-bot/issues',
         'Source Code': 'https://github.com/Eviltr0N/internshala-bot/',
+        'Youtube': 'https://youtu.be/l0Pgz9-QB_E',
     },
     packages=find_packages(),
     install_requires=[
