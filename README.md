@@ -54,7 +54,9 @@ chmod +x <The path your terminal tells you for node>
 
 </details>
 
-* ** Note** - If you are applying at Offline Internships which require to tick the checkbox 'I can relocate to <Location>', then you have to manually click on check box. As this bot is designed for Work from Home internships. 
+
+### Note
+* If you are applying at Offline Internships which require to tick the checkbox 'I can relocate to _Location_', then you have to manually click on check box. As this bot is designed for Work from Home internships. 
 * This Feature will added soon.
 
 
