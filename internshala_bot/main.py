@@ -303,7 +303,7 @@ def main():
         exit()
     if len(urls) > 1:
         for url in urls:
-            if url.find("internshala.com/internship/detail/") != -1:
+            if url.find("internshala.com/internship/detail/") != -1 or url.find("internshala.com/internship/details/") != -1:
                 links.append(url)
             elif url.find("internshala.com/internships/") != -1:
                 print("[bold red]Please Don't Combine[/] Single Internship url [bold red]with[/] Multiple Internship Search page url. \n\nYou can either enter url of search page of Internshala After applying desired filters \n[bold yellow]Example[/]: https://internshala.com/internships/work-from-home/ \n\n     OR     \n\nYou can enter single/multiple urls of Individual Internship detail page seperated by spaces \n[bold yellow]Example[/]: \nFor Individual Internship: \nhttps://internshala.com/internship/detail/x-y-z \n\nFor Multiple Individual Internships: \nhttps://internshala.com/internship/detail/a-b-c https://internshala.com/internship/detail/x-y-z https://internshala.com/internship/detail/s-h-e \n\nFull Guide on Github - https://github.com/Eviltr0N/internshala-bot?tab=readme-ov-file#how-to-use")
@@ -311,7 +311,7 @@ def main():
             else:
                 print("[bold red]Invalid url: [/]", url)
     else:
-        if urls[0].find("internshala.com/internship/detail") != -1:
+        if urls[0].find("internshala.com/internship/detail") != -1 or urls[0].find("internshala.com/internship/details") != -1:
             links.append(urls[0])
         elif urls[0].find("internshala.com/internships/") != -1:
             url=urls[0]
