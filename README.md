@@ -133,7 +133,7 @@ Example:
 * [undetected-playwright-patch](https://pypi.org/project/undetected-playwright-patch/)
 
 
-## PYPI Project 
+## PyPI Project 
 
 [https://pypi.org/project/internshala-bot/](https://pypi.org/project/internshala-bot/)
 
