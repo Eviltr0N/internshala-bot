@@ -44,8 +44,8 @@ class chat:
                 except TimeoutError as e:
                     print('\n[bold red]Timeout Occured at get_cover_letter while loading {self.cover_letter_url}, Please check your network and Try again.\n[/]')
                     exit()
-        self.page.wait_for_selector('textarea#prompt-textarea', state='visible')
-        self.page.locator('textarea#prompt-textarea').fill(prompt)
+        self.page.wait_for_selector('#prompt-textarea', state='visible')
+        self.page.locator('#prompt-textarea').fill(prompt)
         time.sleep(2)
         self.page.locator('[data-testid="send-button"]').click()
         print('Generating Cover Letter...')
@@ -93,8 +93,8 @@ class chat:
                     print('\n[bold red]Timeout Occured at get_assignment_answer while loading {self.assignment_url}, Please check your network and Try again.\n[/]')
                     exit()
 
-        self.page.wait_for_selector('textarea#prompt-textarea', state='visible')
-        self.page.locator('textarea#prompt-textarea').fill(prompt)
+        self.page.wait_for_selector('#prompt-textarea', state='visible')
+        self.page.locator('#prompt-textarea').fill(prompt)
         time.sleep(1)
         self.page.locator('[data-testid="send-button"]').click()
         time.sleep(5)
@@ -130,8 +130,8 @@ class chat:
                     print('\n[bold red]Timeout Occured at assmnt_is_valid while loading {self.gpt_check_asg_url}, Please check your network and Try again.\n[/]')
                     exit()
 
-        self.page.wait_for_selector('textarea#prompt-textarea', state='visible')
-        self.page.locator('textarea#prompt-textarea').fill(prompt)
+        self.page.wait_for_selector('#prompt-textarea', state='visible')
+        self.page.locator('#prompt-textarea').fill(prompt)
         time.sleep(1)
         self.page.locator('[data-testid="send-button"]').click()
         print('Checking if assignment is answerable or not...')

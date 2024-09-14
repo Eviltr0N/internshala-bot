@@ -112,7 +112,7 @@ class internshala:
         self.intshp_url = url
         self.page = self.int_browser.new_page()
         self.page.goto(url, timeout=60000, wait_until='networkidle')
-        if self.page.get_by_text("Custom job").is_visible():
+        if self.page.get_by_text("Custom internship").is_visible():
             self.page.locator('//*[@id="close_popup"]').click()
 
         self.internship_id = self.page.locator('div[id^="individual_internship"]').first.get_attribute('internshipid')
@@ -172,7 +172,10 @@ class internshala:
         submit_loc = self.page.locator('//*[@id="submit"]')
         success.add(self.profile, self.company, self.skills, "Applied", self.intshp_url)
         submit_loc.click()
-        self.page.wait_for_selector('#similar_job_modal > div > div > div.modal-body > div > div > div > div > div.text-heading', state='visible')
+        try:
+            self.page.wait_for_selector('#similar_job_modal > div > div > div.modal-body > div > div > div > div > div.text-heading', state='visible', timeout=15000)
+        except:
+            self.page.wait_for_selector('#similar_internship_modal > div > div > div.modal-body > div > div > div > div > div.text-heading', state='visible', timeout=15000)
         self.page.context.storage_state(path=self.intern_state_conf)
         print('[bold green]Successfully Applied at: [/]', self.page.url)
         self.page.close()
@@ -257,7 +260,7 @@ class internshala:
             res= requests.get(new_url)
             html = HTML(html=res.text)
             data_hrefs = [element.attrs.get('data-href', '') for element in html.find('div.individual_internship') if 'data-href' in element.attrs]
-            profiles = [x.text for x in html.find(".job-internship-name") ]
+            profiles = [x.text for x in html.find(".internship-internship-name") ]
             for ind, x in enumerate(profiles):
                 isp_list.append({
                                 "link": f"https://internshala.com{data_hrefs[ind]}",
@@ -268,7 +271,7 @@ class internshala:
     @staticmethod
     def get_final_links(filter_page_url, additional_filters=None):
         all_internships = internshala.get_interns_list(filter_page_url)
-        filter_from_url = filter_page_url.split("/")[4].replace("job", "internship").split("-internship")[0].replace("work-from-home-", "").replace("part-time-", "").replace(",", "-").split("-")
+        filter_from_url = filter_page_url.split("/")[4].replace("internship", "internship").split("-internship")[0].replace("work-from-home-", "").replace("part-time-", "").replace(",", "-").split("-")
         internship_filters = filter_from_url
         if additional_filters != None:
             for x in additional_filters:
@@ -283,7 +286,6 @@ class internshala:
                     if res["should_apply"]:
                         filtered_urls.append(x["link"])
         return filtered_urls
-
 
 def main():
 
