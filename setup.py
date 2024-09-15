@@ -6,7 +6,7 @@ with open('README.md') as f:
 
 setup(
     name="internshala-bot",
-    version="0.0.6",
+    version="0.0.7",
     author="Mayank Lodhi",
     author_email="",
     description="Package to automate internship application process on Internshala using ChatGPT.",
