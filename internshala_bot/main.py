@@ -20,6 +20,7 @@ from .generate_report import df_failed, df_success
 
 class internshala:
     def __init__(self, browser):
+        self.is_int_or_job = None
         self.profile = None
         self.company = None
         self.skills = None
@@ -110,6 +111,7 @@ class internshala:
 
     def get_internship_info(self, url):
         self.intshp_url = url
+        self.is_int_or_job = url.split("/")[3]
         self.page = self.int_browser.new_page()
         self.page.goto(url, timeout=60000, wait_until='networkidle')
         if self.page.get_by_text("Custom job").is_visible():
@@ -117,7 +119,10 @@ class internshala:
 
         self.internship_id = self.page.locator('div[id^="individual_internship"]').first.get_attribute('internshipid')
         self.profile = self.page.locator(f'#individual_internship_{self.internship_id} > div.internship_meta > div.individual_internship_header > div.company > div.heading_4_5.profile').inner_text()
-        self.company = self.page.locator(f'#individual_internship_{self.internship_id} > div.internship_meta > div.individual_internship_header > div.company > div.heading_6.company_name > div > a').inner_text()
+        if self.is_int_or_job == 'internship' or self.is_int_or_job == 'internships':
+            self.company = self.page.locator(f'#individual_internship_{self.internship_id} > div.internship_meta > div.individual_internship_header > div.company > div.heading_6.company_name > div > a').inner_text()
+        else:
+            self.company = self.page.locator(f'#individual_internship_{self.internship_id} > div.internship_meta > div.individual_internship_header > div.company > div.heading_6.company_name > a').inner_text()
         self.about = self.page.locator(f'#details_container > div.detail_view > div.internship_details > div:nth-child(2)').inner_text()
         round_tabs_count = self.page.locator('.round_tabs_container').count()
         skills_loc = self.page.locator('.round_tabs_container').first
@@ -142,9 +147,11 @@ class internshala:
     def fill_app_form(self, GPT, success, failed, validate_assignment_question):
         if self.page.url == 'https://internshala.com/student/resume?detail_source=resume_intermediate':
             self.page.locator('#layout_table > div.proceed-btn-container > button').click()
-
+        checkbox_selector = 'input[name="location_single"]'  # Location selector checkbox, I can relocate...
+        if self.page.is_visible(checkbox_selector):
+            self.page.evaluate("document.querySelector('input[name=\"location_single\"]').click()")
         cover_letter = self.page.locator('//*[@id="cover_letter_holder"]/div[1]')
-        self.cover = GPT.get_cover_letter(self.profile, self.company, self.about, self.skills)
+        self.cover = GPT.get_cover_letter(self.profile, self.company, self.about, self.skills, self.is_int_or_job)
         cover_letter.fill(self.cover)
         assignments = self.page.locator('.form-group.additional_question')
         count = assignments.count()
@@ -153,9 +160,9 @@ class internshala:
         for x in range(count):
             self.que_text = assignments.nth(x).locator("div.assessment_question > label").inner_text()
             if validate_assignment_question:
-                res = GPT.assmnt_is_valid(self.profile, self.que_text)
+                res = GPT.assmnt_is_valid(self.profile, self.que_text, self.is_int_or_job)
                 if res["send_to_chatbot"]:        
-                    self.answer = GPT.get_assignment_answer(self.profile, self.company, self.about, self.skills, self.que_text)
+                    self.answer = GPT.get_assignment_answer(self.profile, self.company, self.about, self.skills, self.que_text, self.is_int_or_job)
                     print("[green]Assignment Sent to ChatGPT...[/]\n",)
                 else:
                     failed.add(self.profile, self.company, self.skills, res["reason"], self.cover, self.intshp_url)
@@ -165,7 +172,7 @@ class internshala:
                     return False
             else:
                 print('[green]No validation Assignment directly sent to GPT[/]')
-                self.answer = GPT.get_assignment_answer(self.profile, self.company, self.about, self.skills, self.que_text)
+                self.answer = GPT.get_assignment_answer(self.profile, self.company, self.about, self.skills, self.que_text, self.is_int_or_job)
             
             ans_loc = assignments.nth(x).locator('textarea[id^="text_"]')
             ans_loc.fill(self.answer)
@@ -299,24 +306,26 @@ def main():
     urls = arguments.url
     links=[]
     if len(urls) == 0:
-        print("\nPlease Enter a url of search page of Internshala After applying desired filters or url of Single Internship detail page \n\nYou can either enter url of search page of Internshala After applying desired filters \n[bold yellow]Example[/]: https://internshala.com/internships/work-from-home/ \n\n     OR     \n\nYou can enter single/multiple urls of Individual Internship detail page seperated by spaces \n[bold yellow]Example[/]: \nFor Individual Internship: \nhttps://internshala.com/internship/detail/x-y-z \n\nFor Multiple Individual Internships: \nhttps://internshala.com/internship/detail/a-b-c https://internshala.com/internship/detail/x-y-z https://internshala.com/internship/detail/s-h-e \n\nFull Guide on Github - https://github.com/Eviltr0N/internshala-bot?tab=readme-ov-file#how-to-use")
+        print("\nPlease Enter a url of search page of Internshala After applying desired filters or url of Single Internship/job detail page \n\nYou can either enter url of search page of Internshala After applying desired filters \n[bold yellow]Example[/]: https://internshala.com/internships/work-from-home/ \n\n     OR     \n\nYou can enter single/multiple urls of Individual Internship detail page seperated by spaces \n[bold yellow]Example[/]: \nFor Individual Internship: \nhttps://internshala.com/internship/detail/x-y-z \n\nFor Multiple Individual Internships: \nhttps://internshala.com/internship/detail/a-b-c https://internshala.com/internship/detail/x-y-z https://internshala.com/internship/detail/s-h-e \n\nFull Guide on Github - https://github.com/Eviltr0N/internshala-bot?tab=readme-ov-file#how-to-use")
         exit()
     if len(urls) > 1:
         for url in urls:
-            if url.find("internshala.com/internship/detail/") != -1 or url.find("internshala.com/internship/details/") != -1:
+            int_or_job = url.split("/")[3] # CHecks if its job or internship
+            if url.find(f"internshala.com/{int_or_job}/detail/") != -1 or url.find(f"internshala.com/{int_or_job}/details/") != -1:
                 links.append(url)
-            elif url.find("internshala.com/internships/") != -1:
-                print("[bold red]Please Don't Combine[/] Single Internship url [bold red]with[/] Multiple Internship Search page url. \n\nYou can either enter url of search page of Internshala After applying desired filters \n[bold yellow]Example[/]: https://internshala.com/internships/work-from-home/ \n\n     OR     \n\nYou can enter single/multiple urls of Individual Internship detail page seperated by spaces \n[bold yellow]Example[/]: \nFor Individual Internship: \nhttps://internshala.com/internship/detail/x-y-z \n\nFor Multiple Individual Internships: \nhttps://internshala.com/internship/detail/a-b-c https://internshala.com/internship/detail/x-y-z https://internshala.com/internship/detail/s-h-e \n\nFull Guide on Github - https://github.com/Eviltr0N/internshala-bot?tab=readme-ov-file#how-to-use")
+            elif url.find(f"internshala.com/{int_or_job}/") != -1:
+                print("[bold red]Please Don't Combine[/] Single Internship/job url [bold red]with[/] Multiple Internship/job Search page url. \n\nYou can either enter url of search page of Internshala After applying desired filters \n[bold yellow]Example[/]: https://internshala.com/internships/work-from-home/ \n\n     OR     \n\nYou can enter single/multiple urls of Individual Internship detail page seperated by spaces \n[bold yellow]Example[/]: \nFor Individual Internship: \nhttps://internshala.com/internship/detail/x-y-z \n\nFor Multiple Individual Internships: \nhttps://internshala.com/internship/detail/a-b-c https://internshala.com/internship/detail/x-y-z https://internshala.com/internship/detail/s-h-e \n\nFull Guide on Github - https://github.com/Eviltr0N/internshala-bot?tab=readme-ov-file#how-to-use")
                 exit()
             else:
                 print("[bold red]Invalid url: [/]", url)
     else:
-        if urls[0].find("internshala.com/internship/detail") != -1 or urls[0].find("internshala.com/internship/details") != -1:
+        int_or_job = urls[0].split("/")[3] # CHecks if its job or internship
+        if urls[0].find(f"internshala.com/{int_or_job}/detail") != -1 or urls[0].find(f"internshala.com/{int_or_job}/details") != -1:
             links.append(urls[0])
-        elif urls[0].find("internshala.com/internships/") != -1:
+        elif urls[0].find(f"internshala.com/{int_or_job}/") != -1:
             url=urls[0]
         else:
-            print("[bold red]Please Enter a valid url of Internshala's Search page or Internship Page such as [/]https://internshala.com/internships/work-from-home/, or https://internshala.com/internship/detail/ \n\nFull Guide on Github - https://github.com/Eviltr0N/internshala-bot?tab=readme-ov-file#how-to-use")
+            print("[bold red]Please Enter a valid url of Internshala's Search page or Internship/Job Page such as [/]https://internshala.com/internships/work-from-home/, or https://internshala.com/internship/detail/ \n\nFull Guide on Github - https://github.com/Eviltr0N/internshala-bot?tab=readme-ov-file#how-to-use")
             exit()
     
     success = df_success()
