@@ -60,16 +60,16 @@ except:
 
 #======================================================================
 
-def cover_letter_prompt_format(profile, company, about, skills):
+def cover_letter_prompt_format(profile, company, about, skills, int_or_job):
     prompt=f'''
-I want you to write a cover letter for an Remote Internship, \
-I will provide you The internship description, their skill requirements. \
+I want you to write a cover letter for a {int_or_job}, \
+I will provide you The {int_or_job} description, their skill requirements. \
 I will also give you my skills, my certifications, my projects. \
-You have to understand the internship description and my whole portfolio then mention \
-key things from my portfolio that are relavent to the internship description. \
+You have to understand the {int_or_job} description and my whole portfolio then mention \
+key things from my portfolio that are relavent to the {int_or_job} description. \
 Keep cover letter simple but effective. \
 Use general Indian english so it looks like its written by human. \
-Below My skills, certifications, projects and internship description, their skill requirements are attached. \
+Below My skills, certifications, projects and {int_or_job} description, their skill requirements are attached. \
 Dont use email formatting as I am not sending this in an email. \
 Also Don't include header(such as Dear Hiring Manager... etc) and footer(such as Sincerly...etc). \
 If my skill set lacks any of their skill requirement then assume that I possess that skill too. \
@@ -88,7 +88,7 @@ My Projects
 {Projects}
 ```
 
-Internship Description
+{int_or_job} Description
 ```
 {profile}
 
@@ -105,14 +105,14 @@ Important - The letter must be less than 2000 characters.
 
 #====================================================================
 
-def assignment_prompt_format(profile, company, about, skills, question):
+def assignment_prompt_format(profile, company, about, skills, question, int_or_job):
     prompt=f'''
-I am applying for an internship whose description is attached below and their skills requirement too. \
+I am applying for an {int_or_job} whose description is attached below and their skills requirement too. \
 They are asking that `{question}` \
 I have attached my skills, certifications, projects also. \
 I want you to understand their requirements and their question and answer it accordingly while keeping in mind my portfolio. \
 If they are asking about any working shift or relocation to other place then i am totally confortable in all situations. \
-If they are asking that about scheduled classes, assignments, or exams in the next 6 months then I dont have any of those as I am recently graduated and I can devote my time fully on internship. \
+If they are asking that about scheduled classes, assignments, or exams in the next 6 months then I dont have any of those as I am recently graduated and I can devote my time fully on {int_or_job}. \
 Use general Indian english so it looks like its written by human & don't exhagurate your words. \
 If my skill set lacks any of their skill requirement then assume that I possess that skill too. \
 Keep Your answer to the point, short and precise.
@@ -130,7 +130,7 @@ My Projects
 {Projects}
 ```
 
-Internship Description
+{int_or_job} Description
 ```
 {profile}
 
@@ -148,24 +148,24 @@ include question or any other text in you response besides answer of the questio
     return prompt
 
 
-def assignment_validation_prompt(profile, question):
-    header='''
+def assignment_validation_prompt(profile, question, int_or_job):
+    header=f'''
 
-I am making a project which answers Internship Assignment Questions while applying for Internship Using an AI chatbot. The Ai chatbot has given My Personal portifolio which includes My Skills. Projects and Certification. It also given My working shifts and If I can relocate or not. I dont want that Ai chatbot will answer questions related to Personal things or related to information which is not inside the portfolio which is given to the Chatbot.You have to act as Moderator that I will give you question which will then passed to Ai chatbot, You have to check if the Question is related to :- 
+I am making a project which answers {int_or_job} Assignment Questions while applying for {int_or_job} Using an AI chatbot. The Ai chatbot has given My Personal portifolio which includes My Skills. Projects and Certification. It also given My working shifts and If I can relocate or not. I dont want that Ai chatbot will answer questions related to Personal things or related to information which is not inside the portfolio which is given to the Chatbot.You have to act as Moderator that I will give you question which will then passed to Ai chatbot, You have to check if the Question is related to :- 
 `
 Any personal information such as asking Grades/Percentages/CGPA.
 If Question Contains any link/Url.
 Asking question related Salary/Stipend.
 Asking for LinkedIn/Github Profile Links.
-Asking for Personal Achivements which are not related to Internshpi Profile.
+Asking for Personal Achivements which are not related to {int_or_job} Profile.
 
 `
 If the question is related to above mention things then It should not answered by Ai chatbot and You have to Give Your Response In JSON Format. Here is Your Response Format - 
 `
-{
+{{
 "send_to_chatbot": true / false,
 "reason": Reason which thing is asked
-}
+}}
 `
 Here are few Examples - 
 Example - 1
@@ -175,7 +175,7 @@ Question - Candidates who have completed graduation or are in their last year of
 """
 Your Response Should be - 
 ""
-{"send_to_chatbot": false, "reason":"Asking For Educational Details"}
+{{"send_to_chatbot": false, "reason":"Asking For Educational Details"}}
 ""
 Example - 2
 """
@@ -184,7 +184,7 @@ Question - Provide us your Linkedin and Github.
 """
 Your Response Should be - 
 ""
-{"send_to_chatbot": false, "reason":"Asking For Linkedin/Github"}
+{{"send_to_chatbot": false, "reason":"Asking For Linkedin/Github"}}
 ""
 Example - 3
 
@@ -194,7 +194,7 @@ Question - What will be the answer of this question https://docs.google.com/docu
 """
 Your Response Should be - 
 ""
-{"send_to_chatbot": false, "reason":"Contains Link"}
+{{"send_to_chatbot": false, "reason":"Contains Link"}}
 ""
 Example - 3
 
@@ -204,7 +204,7 @@ Question - How do you ensure that you are aware of the latest trends, breakthrou
 """
 Your Response Should be - 
 ""
-{"send_to_chatbot": true, "reason":""}
+{{"send_to_chatbot": true, "reason":""}}
 ""
 
 Example - 4
@@ -215,7 +215,7 @@ Question - Have you posses any preoir experience in the same field? If yes pleas
 """
 Your Response Should be - 
 ""
-{"send_to_chatbot": true, "reason":""}
+{{"send_to_chatbot": true, "reason":""}}
 ""
 '''
 

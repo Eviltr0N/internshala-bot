@@ -22,8 +22,8 @@ class chat:
         self.gpt_state_conf = os.path.join(config_dir, 'chat_gpt_state.json')
         self.page = browser_inst.new_page()
 
-    def get_cover_letter(self, profile, company, about, skills):
-        prompt = cover_letter_prompt_format(profile, company, about, skills)
+    def get_cover_letter(self, profile, company, about, skills, is_int_or_job):
+        prompt = cover_letter_prompt_format(profile, company, about, skills, is_int_or_job)
         if self.cover_letter_url is None:
             try:
                 self.page.goto(self.main_page_url , timeout=30000, wait_until='networkidle')
@@ -69,8 +69,8 @@ class chat:
         return cover_lt
 
 
-    def get_assignment_answer(self, profile, company, about, skills, question):
-        prompt = assignment_prompt_format(profile, company, about, skills, question)
+    def get_assignment_answer(self, profile, company, about, skills, question, is_int_or_job):
+        prompt = assignment_prompt_format(profile, company, about, skills, question, is_int_or_job)
 
         if self.assignment_url is None:
             try:
@@ -107,8 +107,8 @@ class chat:
         self.page.context.storage_state(path=self.gpt_state_conf)
         return resp
 
-    def assmnt_is_valid(self, profile, question):
-        prompt = assignment_validation_prompt(profile, question)
+    def assmnt_is_valid(self, profile, question, is_int_or_job):
+        prompt = assignment_validation_prompt(profile, question, is_int_or_job)
         if self.gpt_check_asg_url is None:
             try:
                 self.page.goto(self.main_page_url , timeout=30000, wait_until='networkidle')
