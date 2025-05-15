@@ -13,10 +13,11 @@ from requests_html import HTML
 from rich.progress import track
 from rich import print
 from rich.theme import Theme
-from .chat_gpt import chat
-from .generate_report import df_failed, df_success
+from internshala_bot.chat_gpt import chat, is_gpt_api_alive
+from internshala_bot.assignment_helper import get_form_handlers
+from internshala_bot.generate_report import df_failed, df_success
 
-
+session = requests.Session()
 
 class internshala:
     def __init__(self, browser):
@@ -28,6 +29,7 @@ class internshala:
         self.internship_id = None
         self.int_browser = None
         self.gpt_browser = None
+
         self.browser = browser
         self.scn_size = {"width":800, "height":800}
 
@@ -44,23 +46,24 @@ class internshala:
             self.int_browser = self.browser.new_context(storage_state=self.intern_state_conf,
             viewport=self.scn_size,
             )
-
-        if not os.path.exists(self.gpt_state_conf):
-            print('[bold yellow]Please log-in to your ChatGPT Account[/]\n')
-            self.login_chat_gpt()
-        else:
-            current_time = time.time()
-            creation_time = os.path.getctime(self.gpt_state_conf)
-            file_age_hours = (current_time - creation_time) / 3600
-            if file_age_hours > 3:
-                os.remove(self.gpt_state_conf)
+        if not is_gpt_api_alive():
+            if not os.path.exists(self.gpt_state_conf):
                 print('[bold yellow]Please log-in to your ChatGPT Account[/]\n')
                 self.login_chat_gpt()
             else:
-                self.gpt_browser = self.browser.new_context(storage_state=self.gpt_state_conf,
-                viewport=self.scn_size,
-                )
-                
+                current_time = time.time()
+                creation_time = os.path.getctime(self.gpt_state_conf)
+                file_age_hours = (current_time - creation_time) / 3600
+                if file_age_hours > 3:
+                    os.remove(self.gpt_state_conf)
+                    print('[bold yellow]Please log-in to your ChatGPT Account[/]\n')
+                    self.login_chat_gpt()
+                else:
+                    self.gpt_browser = self.browser.new_context(storage_state=self.gpt_state_conf,
+                    viewport=self.scn_size,
+                    )
+        else:
+            print('[bold green]No need to login to chatgpt, using api[/]\n')
 
     def login_internshala(self):
         page = self.browser.new_page()
@@ -82,20 +85,22 @@ class internshala:
     def login_chat_gpt(self):
         page = self.browser.new_page()
         try:
-            page.goto('https://chat.openai.com' , timeout=30000, wait_until='networkidle')
+            page.goto('https://chatgpt.com' , timeout=30000, wait_until='domcontentloaded')
         except TimeoutError as e:
             print("[red]TimeOut while loading ChatGPT webpage... Trying Again[/]")
             try:
-                page.goto('https://chat.openai.com' , timeout=30000, wait_until='networkidle')
+                page.goto('https://chatgpt.com' , timeout=30000, wait_until='domcontentloaded')
             except TimeoutError as e:
                 print('\n[bold red]Timeout Occured while loading https://chatgpt.com, Please check your network and Try again.\n[/]')
                 exit()
         time.sleep(1)
-        try:
-            with page.expect_navigation():
-                page.locator('[data-testid="login-button"]').click()
-        except:
-            print("[bold yellow]Click on Login button and Login using Your Emali and Password...\n[/]")
+        # try:
+        #     with page.expect_navigation():
+        #         page.locator('[data-testid="login-button"]').click()
+        # except:
+        
+        print("[bold yellow]Click on Login button and Login using Your Emali and Password...\n[/]")
+        
         start_time = time.time()
         while not page.locator('[data-testid="profile-button"]').is_visible():
             time.sleep(1)
@@ -139,8 +144,8 @@ class internshala:
             return True
         else:
             apply_button = self.page.get_by_role("button", name="Apply now")
-            apply_button.click()
-            self.page.wait_for_selector('//*[@id="cover_letter_holder"]/div[1]', state='visible')
+            apply_button.first.click()
+            self.page.wait_for_selector('//*[@id="submit"]', state='visible')
             return False
         self.page.context.storage_state(path=self.intern_state_conf)
     
@@ -151,32 +156,57 @@ class internshala:
         if self.page.is_visible(checkbox_selector):
             self.page.evaluate("document.querySelector('input[name=\"location_single\"]').click()")
         cover_letter = self.page.locator('//*[@id="cover_letter_holder"]/div[1]')
-        self.cover = GPT.get_cover_letter(self.profile, self.company, self.about, self.skills, self.is_int_or_job)
-        cover_letter.fill(self.cover)
-        assignments = self.page.locator('.form-group.additional_question')
-        count = assignments.count()
-        print('Total assignments: ', f'[bold green]{count}[/]\n')
-        self.que_text = None
-        for x in range(count):
-            self.que_text = assignments.nth(x).locator("div.assessment_question > label").inner_text()
-            if validate_assignment_question:
-                res = GPT.assmnt_is_valid(self.profile, self.que_text, self.is_int_or_job)
-                if res["send_to_chatbot"]:        
-                    self.answer = GPT.get_assignment_answer(self.profile, self.company, self.about, self.skills, self.que_text, self.is_int_or_job)
-                    print("[green]Assignment Sent to ChatGPT...[/]\n",)
-                else:
-                    failed.add(self.profile, self.company, self.skills, res["reason"], self.cover, self.intshp_url)
-                    print("[bold red]YOU HAVE TO MANUALLY APPLY TO THIS INTERNSHIP[/]\n" )
-                    print("[bold yellow]Reason: [/]", f'{res["reason"]}\n')
-                    self.page.close()
-                    return False
-            else:
-                print('[green]No validation Assignment directly sent to GPT[/]')
-                self.answer = GPT.get_assignment_answer(self.profile, self.company, self.about, self.skills, self.que_text, self.is_int_or_job)
-            
-            ans_loc = assignments.nth(x).locator('textarea[id^="text_"]')
-            ans_loc.fill(self.answer)
+        self.cover = ""
+        if cover_letter.is_visible():
+            self.cover = GPT.get_cover_letter(self.profile, self.company, self.about, self.skills, self.is_int_or_job)
+            cover_letter.fill(self.cover)
+        
+
+        assignment_questions = get_form_handlers(self.page)
+
+        for question_text, handler in assignment_questions.items():
+            try:
+                if handler['type'] == 'radio':
+                    options = handler['options']
+                    # Choose 'Yes' if available, otherwise first option
+                    selected_option = 'Yes' if 'Yes' in options else options[0]
+                    handler['select'](selected_option)
+                    print(f"Successfully selected '{selected_option}'")
+                elif handler['type'] == 'numeric':
+                    self.question_text = question_text + "\nThis is a numeric field, PLEASE ONLY GIVE ANSWER IN NUMBERS"
+                    self.answer = GPT.get_assignment_answer(self.profile, self.company, self.about, self.skills, self.question_text, self.is_int_or_job)
+                    try:
+                        self.answer = int(self.answer)
+                    except ValueError as e:
+                        self.answer = 1
+                    handler['fill'](self.answer)
+                else:  # text type
+                    self.question_text = question_text
+                    if validate_assignment_question:
+                        res = GPT.assmnt_is_valid(self.profile, self.question_text, self.is_int_or_job)
+                        if res["send_to_chatbot"]:
+                            print("[green]Assignment Sent to ChatGPT --->[/]", self.question_text)
+                            self.answer = GPT.get_assignment_answer(self.profile, self.company, self.about, self.skills, self.question_text, self.is_int_or_job)
+
+                        else:
+                            failed.add(self.profile, self.company, self.skills, res["reason"], self.cover, self.intshp_url)
+                            print("[bold red]YOU HAVE TO MANUALLY APPLY TO THIS INTERNSHIP[/]\n" )
+                            print("[bold yellow]Reason: [/]", f'{res["reason"]}\n')
+                            self.page.close()
+                            return False
+                    else:
+                        print('[green]No validation, Assignment directly sent to GPT[/]')
+                        self.answer = GPT.get_assignment_answer(self.profile, self.company, self.about, self.skills, self.question_text, self.is_int_or_job)
+                    
+                    handler['fill'](self.answer)
+
+            except Exception as e:
+                print(f"\nError filling answer for '{question_text}': {str(e)}")
+                import traceback
+                print(traceback.format_exc())
+    
         submit_loc = self.page.locator('//*[@id="submit"]')
+        time.sleep(30)
         success.add(self.profile, self.company, self.skills, "Applied", self.intshp_url)
         submit_loc.click()
         self.page.wait_for_selector('#similar_job_modal > div > div > div.modal-body > div > div > div > div > div.text-heading', state='visible')
@@ -220,22 +250,55 @@ class internshala:
             data = {
                     'skill_name': skill_name,  
                     'add_skill_from': 'student_profile_form',
-                    'skill_level': 'Intermediate',
+                    'is_skill_from_parsed': 'no',
                     'csrf_test_name': req_cookies["csrf_cookie_name"]
                 }
-            res = requests.post(url, headers=headers, cookies=req_cookies, data=data)
-            if res.json()["success"] == False:
-                print(skill_name, f'[red]{res.json()["errorThrown"]}[/]' )
-            else:
-                print(skill_name, "[green]Added Successfully[green]")
-            req_cookies = res.cookies
+            try:
+                res = requests.post(url, headers=headers, cookies=req_cookies, data=data, timeout=5)
+                if res.json()["success"] == False:
+                    print(skill_name, f'[red]{res.json()["errorThrown"]}[/]' )
+                else:
+                    print(skill_name, "[green]Added Successfully[green]")
+                req_cookies = res.cookies
+                csrf.update({"value": req_cookies["csrf_cookie_name"]})
+                self.page.context.add_cookies([csrf])
+            except requests.exceptions.Timeout as e:
+                try:
+                    res = requests.post(url, headers=headers, cookies=req_cookies, data=data, timeout=5)
+                    if res.json()["success"] == False:
+                        print(skill_name, f'[red]{res.json()["errorThrown"]}[/]' )
+                    else:
+                        print(skill_name, "[green]Added Successfully[green]")
+                    req_cookies = res.cookies
+                    csrf.update({"value": req_cookies["csrf_cookie_name"]})
+                    self.page.context.add_cookies([csrf])
+                except requests.exceptions.Timeout as e:
+                    print("TimeOut while adding skill to resume")
+                    
 
-        csrf.update({"value": req_cookies["csrf_cookie_name"]})
-        self.page.context.add_cookies([csrf])
-
-    @staticmethod
+    # @staticmethod
     def check_hiring_stats(url):
-        res = requests.get(url)
+        headers = {
+            "Authority": "internshala.com",
+            "Method": "GET",
+            "Scheme": "https",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+            "Accept-Encoding": "gzip, deflate, br, zstd",
+            "Accept-Language": "en-GB,en;q=0.9",
+            "Priority": "u=0, i",
+            "Sec-CH-UA": '"Chromium";v="131", "Not_A Brand";v="24"',
+            "Sec-CH-UA-Mobile": "?0",
+            "Sec-CH-UA-Platform": '"Windows"',
+            "Sec-Fetch-Dest": "document",
+            "Sec-Fetch-Mode": "navigate",
+            "Sec-Fetch-Site": "none",
+            "Sec-Fetch-User": "?1",
+            "Upgrade-Insecure-Requests": "1",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+        }
+
+        res = session.get(url, headers=headers)
+        print(res)
         html = HTML(html=res.text)
         try:
             opp = int(html.find("#details_container > div.detail_view > div.internship_details > div.activity_section > div.activity_container > div:nth-child(2) > div")[0].text.split(" ")[0])
@@ -298,11 +361,13 @@ def main():
     parser.add_argument('url', nargs='*', help='Enter url of search page of Internshala After applying desired filters or url of Single Internship detail page')
     parser.add_argument('-f', '--filters', '-filters', '--filter', nargs='*', default=[],dest='filters', metavar='Internship_Roles' , help='You can specify additional role filter for Internship which are not available in internshala filter Such as HTML developer, Linux Specilist etc')
     parser.add_argument('--skip_assignment_validation', '--skip', dest='skip',action='store_false', help="This flag is used to disable assignment validation check which is used to check if any personal information is asked in Assignment Question.")
+    parser.add_argument('--do_not_use_chat_gpt_api', '--skip_api', dest='skip_api',action='store_false', help="This flag is used to disable chat gpt api.")
 
     arguments = parser.parse_args()
 
     validate_assignment_question = arguments.skip #Must be true to validate assignment question
     additional_filters = arguments.filters
+    use_chatgpt_api = arguments.skip_api
     urls = arguments.url
     links=[]
     if len(urls) == 0:
@@ -338,7 +403,7 @@ def main():
         browser = p.chromium.launch(args=args, headless=False)  # Run in headful mode
         
         intern = internshala(browser)
-        GPT = chat(intern.gpt_browser)
+        GPT = chat(intern.gpt_browser, use_api=use_chatgpt_api)
 
         if len(links) == 0:
             links = intern.get_final_links(url, additional_filters)
