@@ -3,6 +3,12 @@
 ### Full Video Tutorial on [Youtube](https://youtu.be/l0Pgz9-QB_E) - <https://youtu.be/l0Pgz9-QB_E>
 
 ### Update
+
+## 15-May-2025
+* Fixed internshala Ui Changes
+* Added ChatGPT API(using pollinations.ai)
+
+## 16-Sep-2024
 * Now you can apply for Jobs also.
 
 ## Background
@@ -143,6 +149,7 @@ Example:
 
 ## Credits
 * [undetected-playwright-patch](https://pypi.org/project/undetected-playwright-patch/)
+* [pollinations.ai](https://pollinations.ai)
 
 
 ## PyPI Project 
@@ -151,3 +158,5 @@ Example:
 
 ## To Do
 * GUI using Tkinter
+* Equivalent Chrome Extention using Javascript
+
