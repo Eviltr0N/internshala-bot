@@ -6,7 +6,7 @@ with open('README.md') as f:
 
 setup(
     name="internshala-bot",
-    version="0.1.0",
+    version="0.1.1",
     author="Mayank Lodhi",
     author_email="",
     description="Package to automate internship application process on Internshala using ChatGPT.",
@@ -21,7 +21,7 @@ setup(
     },
     packages=find_packages(),
     install_requires=[
-        "undetected-playwright-patch==1.40.0.post1700587210000",
+        "undetected-playwright-patch==1.40.0-1700587210000",
         "rich==13.7.1",
         "argparse",
         "requests",
