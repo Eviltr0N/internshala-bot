@@ -9,7 +9,7 @@ import json
 import os
 import time
 import requests
-from internshala_bot.resume_handler import Skills, Certifications, Projects, cover_letter_prompt_format, assignment_prompt_format, assignment_validation_prompt
+from .resume_handler import Skills, Certifications, Projects, cover_letter_prompt_format, assignment_prompt_format, assignment_validation_prompt
 
 # check is gpt api is alive at beggining then set the flag accordingly
 

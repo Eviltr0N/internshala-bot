@@ -13,9 +13,9 @@ from requests_html import HTML
 from rich.progress import track
 from rich import print
 from rich.theme import Theme
-from internshala_bot.chat_gpt import chat, is_gpt_api_alive
-from internshala_bot.assignment_helper import get_form_handlers
-from internshala_bot.generate_report import df_failed, df_success
+from .chat_gpt import chat, is_gpt_api_alive
+from .assignment_helper import get_form_handlers
+from .generate_report import df_failed, df_success
 
 session = requests.Session()
 
@@ -206,7 +206,6 @@ class internshala:
                 print(traceback.format_exc())
     
         submit_loc = self.page.locator('//*[@id="submit"]')
-        time.sleep(30)
         success.add(self.profile, self.company, self.skills, "Applied", self.intshp_url)
         submit_loc.click()
         self.page.wait_for_selector('#similar_job_modal > div > div > div.modal-body > div > div > div > div > div.text-heading', state='visible')

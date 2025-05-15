@@ -2,7 +2,9 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+.config/
+resume.ini
+reports/
 # C extensions
 *.so
 

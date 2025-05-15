@@ -4,7 +4,7 @@ Github - https://github.com/Eviltr0N/internshala-bot
 Written by - Mayank Lodhi
 """
 
-from internshala_bot.main import main
+from .main import main
 
 if __name__ == "__main__":
     main()
